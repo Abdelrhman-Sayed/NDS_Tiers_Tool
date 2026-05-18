@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كاوتش مصر - أسعار الكاوتش في القاهرة والإسكندرية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D0F14;
+    --bg2: #13161E;
+    --card: #1A1E2A;
+    --card2: #202535;
+    --orange: #F97316;
+    --orange2: #FB923C;
+    --blue: #3B82F6;
+    --green: #22C55E;
+    --text: #F1F3F9;
+    --muted: #6B7280;
+    --border: rgba(249,115,22,0.15);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; direction:rtl; }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background: radial-gradient(ellipse 70% 40% at 15% 10%,rgba(249,115,22,.07) 0%,transparent 60%),
+                radial-gradient(ellipse 50% 30% at 85% 90%,rgba(59,130,246,.06) 0%,transparent 60%);
+  }
+  header {
+    position:relative; z-index:10; background:rgba(13,15,20,.95);
+    backdrop-filter:blur(20px); border-bottom:1px solid var(--border);
+    padding:1rem 2rem; display:flex; align-items:center; gap:12px;
+  }
+  .logo-icon { width:44px;height:44px; background:linear-gradient(135deg,var(--orange),var(--orange2)); border-radius:12px; display:flex;align-items:center;justify-content:center; font-size:1.4rem; }
+  .logo-text { font-family:'Tajawal',sans-serif; font-weight:900; font-size:1.5rem; }
+  .logo-text span { color:var(--orange); }
+  .logo-sub { font-size:.75rem; color:var(--muted); margin-top:-4px; }
+
+  main { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .hero { text-align:center; padding:2.5rem 0 2rem; animation:fadeUp .6s ease both; }
+  .hero h1 { font-family:'Tajawal',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; margin-bottom:.5rem; line-height:1.3; }
+  .hero h1 em { color:var(--orange); font-style:normal; }
+  .hero p { color:var(--muted); font-size:1rem; }
+
+  .search-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2rem; margin-bottom:2rem; animation:fadeUp .6s .1s ease both; }
+  .filters-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+  .field-group { display:flex; flex-direction:column; gap:6px; }
+  .field-group label { font-size:.82rem; font-weight:600; color:var(--orange); letter-spacing:.5px; }
+  select, input { background:var(--bg2); border:1px solid rgba(255,255,255,.08); border-radius:10px; color:var(--text); padding:10px 14px; font-family:'Cairo',sans-serif; font-size:.9rem; outline:none; transition:border-color .2s,box-shadow .2s; width:100%; }
+  select:focus, input:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(249,115,22,.12); }
+  select option { background:#1a1e2a; }
+
+  .btn-search { width:100%; background:linear-gradient(135deg,var(--orange),var(--orange2)); border:none; border-radius:12px; color:#fff; font-family:'Cairo',sans-serif; font-size:1.05rem; font-weight:700; padding:14px; cursor:pointer; transition:all .3s; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .btn-search:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(249,115,22,.35); }
+  .btn-search:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  .sort-bar { display:flex; align-items:center; gap:10px; margin-bottom:1.2rem; flex-wrap:wrap; }
+  .sort-bar span { color:var(--muted); font-size:.85rem; }
+  .sort-btn { background:var(--card2); border:1px solid rgba(255,255,255,.08); border-radius:8px; color:var(--text); font-family:'Cairo',sans-serif; font-size:.82rem; padding:6px 14px; cursor:pointer; transition:all .2s; }
+  .sort-btn.active,.sort-btn:hover { background:var(--orange); border-color:var(--orange); color:#fff; }
+
+  .results-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.2rem; }
+  .tire-card { background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:1.4rem; transition:all .3s; animation:fadeUp .4s ease both; position:relative; overflow:hidden; }
+  .tire-card::before { content:''; position:absolute; top:0;right:0; width:80px;height:80px; background:radial-gradient(circle,rgba(249,115,22,.08),transparent 70%); pointer-events:none; }
+  .tire-card:hover { border-color:rgba(249,115,22,.3); transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.4); }
+
+  .card-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1rem; gap:8px; }
+  .brand-badge { background:linear-gradient(135deg,rgba(249,115,22,.15),rgba(249,115,22,.05)); border:1px solid rgba(249,115,22,.25); border-radius:8px; padding:4px 12px; font-size:.78rem; font-weight:700; color:var(--orange2); }
+  .bestseller-badge { background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.05)); border:1px solid rgba(34,197,94,.3); border-radius:8px; padding:4px 10px; font-size:.72rem; font-weight:700; color:var(--green); display:flex; align-items:center; gap:4px; }
+  .tire-name { font-size:1.05rem; font-weight:700; margin-bottom:4px; line-height:1.4; }
+  .tire-size { color:var(--muted); font-size:.85rem; margin-bottom:1rem; display:flex; align-items:center; gap:6px; }
+  .dot { color:var(--orange); }
+  .specs-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem; }
+  .spec-chip { background:var(--bg2); border-radius:6px; padding:3px 10px; font-size:.75rem; color:var(--muted); }
+  .price-row { display:flex; align-items:flex-end; justify-content:space-between; border-top:1px solid rgba(255,255,255,.06); padding-top:1rem; margin-top:.5rem; }
+  .price-label { font-size:.72rem; color:var(--muted); margin-bottom:2px; }
+  .price-value { font-family:'Tajawal',sans-serif; font-size:1.5rem; font-weight:900; color:var(--orange); line-height:1; }
+  .price-value small { font-size:.75rem; font-weight:600; margin-right:2px; }
+  .city-tags { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
+  .city-tag { font-size:.7rem; padding:3px 8px; border-radius:5px; background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.2); color:#93C5FD; }
+
+  .loading-wrap { text-align:center; padding:4rem 2rem; display:none; }
+  .spinner { width:50px;height:50px; border:3px solid rgba(249,115,22,.15); border-top-color:var(--orange); border-radius:50%; margin:0 auto 1rem; animation:spin .8s linear infinite; }
+  .loading-text { color:var(--muted); font-size:.95rem; }
+  .loading-steps { margin-top:.5rem; font-size:.82rem; color:rgba(249,115,22,.6); }
+
+  .empty-state { text-align:center; padding:4rem 2rem; display:none; }
+  .empty-icon { font-size:4rem; margin-bottom:1rem; opacity:.3; }
+  .empty-text { color:var(--muted); }
+
+  .summary-box { background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(249,115,22,.03)); border:1px solid rgba(249,115,22,.2); border-radius:14px; padding:1.2rem 1.5rem; margin-bottom:1.5rem; font-size:.9rem; line-height:1.8; display:none; }
+  .summary-box strong { color:var(--orange); }
+
+  .stats-row { display:none; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+  .stat-card { background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:1rem; text-align:center; }
+  .stat-num { font-family:'Tajawal',sans-serif; font-size:1.6rem; font-weight:900; color:var(--orange); }
+  .stat-lbl { font-size:.75rem; color:var(--muted); margin-top:2px; }
+
+  .server-status { display:inline-flex; align-items:center; gap:6px; font-size:.78rem; padding:4px 12px; border-radius:20px; margin-right:auto; }
+  .server-status.ok { background:rgba(34,197,94,.1); color:var(--green); border:1px solid rgba(34,197,94,.2); }
+  .server-status.err { background:rgba(239,68,68,.1); color:#F87171; border:1px solid rgba(239,68,68,.2); }
+  .status-dot { width:7px;height:7px; border-radius:50%; background:currentColor; animation:pulse 1.5s infinite; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  @media(max-width:600px) {
+    .filters-grid { grid-template-columns:1fr 1fr; }
+    .results-grid { grid-template-columns:1fr; }
+    .stats-row { grid-template-columns:1fr; }
+    header { padding:1rem; }
+    main { padding:1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">🔄</div>
+  <div>
+    <div class="logo-text">كاوتش <span>مصر</span></div>
+    <div class="logo-sub">أسعار حقيقية من السوق المصري</div>
+  </div>
+  <div class="server-status err" id="serverStatus">
+    <div class="status-dot"></div>
+    <span id="statusText">جاري الاتصال...</span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>أسعار الكاوتش في <em>مصر</em></h1>
+    <p>بحث فوري عن أحسن الأسعار في القاهرة والإسكندرية بكل الأنواع والمقاسات</p>
+  </div>
+
+  <div class="search-card">
+    <div class="filters-grid">
+      <div class="field-group">
+        <label>🏙️ المدينة</label>
+        <select id="city">
+          <option value="مصر">كل مصر</option>
+          <option value="القاهرة">القاهرة</option>
+          <option value="الإسكندرية">الإسكندرية</option>
+          <option value="الجيزة">الجيزة</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>🏷️ الماركة</label>
+        <select id="brand">
+          <option value="">كل الماركات</option>
+          <option value="Bridgestone">Bridgestone</option>
+          <option value="Michelin">Michelin</option>
+          <option value="Continental">Continental</option>
+          <option value="Pirelli">Pirelli</option>
+          <option value="Goodyear">Goodyear</option>
+          <option value="Dunlop">Dunlop</option>
+          <option value="Yokohama">Yokohama</option>
+          <option value="Hankook">Hankook</option>
+          <option value="Toyo">Toyo</option>
+          <option value="Falken">Falken</option>
+          <option value="Nexen">Nexen</option>
+          <option value="GT Radial">GT Radial</option>
+          <option value="Lassa">Lassa</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>📏 العرض</label>
+        <select id="width">
+          <option value="">كل المقاسات</option>
+          <option>155</option><option>165</option><option>175</option>
+          <option>185</option><option>195</option><option>205</option>
+          <option>215</option><option>225</option><option>235</option>
+          <option>245</option><option>255</option><option>265</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>⭕ قطر الجنط</label>
+        <select id="rim">
+          <option value="">كل الأقطار</option>
+          <option>13</option><option>14</option><option>15</option>
+          <option>16</option><option>17</option><option>18</option>
+          <option>19</option><option>20</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>🚗 نوع السيارة</label>
+        <select id="carType">
+          <option value="">كل السيارات</option>
+          <option value="سيارة ملاكي">سيارة ملاكي</option>
+          <option value="SUV">SUV</option>
+          <option value="ميكروباص">ميكروباص</option>
+          <option value="بيك أب">بيك أب</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>💰 أقصى سعر (ج.م)</label>
+        <input type="number" id="maxPrice" placeholder="مثال: 3000" min="0" step="100">
+      </div>
+    </div>
+    <button class="btn-search" id="searchBtn" onclick="doSearch()">
+      🔍 ابحث دلوقتي
+    </button>
+  </div>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-num" id="statCount">0</div>
+      <div class="stat-lbl">نتيجة متاحة</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statMin">—</div>
+      <div class="stat-lbl">أقل سعر (ج.م)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statMax">—</div>
+      <div class="stat-lbl">أعلى سعر (ج.م)</div>
+    </div>
+  </div>
+
+  <div class="sort-bar" id="sortBar" style="display:none">
+    <span>ترتيب حسب:</span>
+    <button class="sort-btn active" id="sort-popular" onclick="sortResults('popular')">الأكثر مبيعاً</button>
+    <button class="sort-btn" id="sort-price-asc" onclick="sortResults('price-asc')">السعر ↑</button>
+    <button class="sort-btn" id="sort-price-desc" onclick="sortResults('price-desc')">السعر ↓</button>
+    <button class="sort-btn" id="sort-brand" onclick="sortResults('brand')">الماركة</button>
+  </div>
+
+  <div class="loading-wrap" id="loadingWrap">
+    <div class="spinner"></div>
+    <div class="loading-text">جاري البحث عن أحسن الأسعار...</div>
+    <div class="loading-steps" id="loadingStep">تحليل السوق المصري...</div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-text">مفيش نتايج — جرب تغير الفلاتر</div>
+  </div>
+
+  <div class="results-grid" id="resultsGrid"></div>
+</main>
+
+<script>
+// ====================================================
+// ⬇️  REPLACE THIS URL WITH YOUR RAILWAY URL
+// ====================================================
+const SERVER_URL = "REPLACE_WITH_YOUR_RAILWAY_URL";
+// Example: const SERVER_URL = "https://kawtech-egypt.up.railway.app";
+// ====================================================
+
+let allResults = [];
+let currentSort = 'popular';
+
+async function checkServer() {
+  try {
+    const r = await fetch(SERVER_URL + '/health', {
+      signal: AbortSignal.timeout(5000)
+    });
+    setStatus(r.ok);
+  } catch {
+    setStatus(false);
+  }
+}
+
+function setStatus(ok) {
+  const el = document.getElementById('serverStatus');
+  const txt = document.getElementById('statusText');
+  el.className = 'server-status ' + (ok ? 'ok' : 'err');
+  txt.textContent = ok ? 'متصل ✓' : 'غير متصل';
+}
+
+checkServer();
+setInterval(checkServer, 15000);
+
+async function doSearch() {
+  const city     = document.getElementById('city').value;
+  const brand    = document.getElementById('brand').value;
+  const width    = document.getElementById('width').value;
+  const rim      = document.getElementById('rim').value;
+  const carType  = document.getElementById('carType').value;
+  const maxPrice = document.getElementById('maxPrice').value;
+
+  let query = 'أسعار كاوتش';
+  if (brand) query += ` ${brand}`;
+  if (width && rim) query += ` مقاس ${width}/${rim}`;
+  else if (width) query += ` عرض ${width}`;
+  else if (rim) query += ` قطر ${rim}`;
+  if (carType) query += ` ${carType}`;
+  query += ` في ${city} 2025`;
+
+  document.getElementById('loadingWrap').style.display = 'block';
+  document.getElementById('resultsGrid').innerHTML = '';
+  document.getElementById('statsRow').style.display = 'none';
+  document.getElementById('summaryBox') && (document.getElementById('summaryBox').style.display = 'none');
+  document.getElementById('sortBar').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('searchBtn').disabled = true;
+
+  const steps = ['جاري البحث...','تحليل الأسعار...','مقارنة العروض...','تجميع النتائج...'];
+  let si = 0;
+  const iv = setInterval(() => {
+    document.getElementById('loadingStep').textContent = steps[++si % steps.length];
+  }, 1500);
+
+  try {
+    const resp = await fetch(SERVER_URL + '/api/search', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ query, filters: { city, brand, width, rim, carType, maxPrice } })
+    });
+
+    const data = await resp.json();
+    clearInterval(iv);
+    document.getElementById('loadingWrap').style.display = 'none';
+    document.getElementById('searchBtn').disabled = false;
+
+    if (data.error) throw new Error(data.error);
+
+    allResults = data.results || [];
+    renderResults(allResults);
+
+  } catch (e) {
+    clearInterval(iv);
+    document.getElementById('loadingWrap').style.display = 'none';
+    document.getElementById('searchBtn').disabled = false;
+    const em = document.getElementById('emptyState');
+    em.style.display = 'block';
+    em.querySelector('.empty-text').textContent = `❌ خطأ في الاتصال: ${e.message}`;
+  }
+}
+
+function renderResults(results) {
+  const grid = document.getElementById('resultsGrid');
+  if (!results.length) { document.getElementById('emptyState').style.display = 'block'; return; }
+
+  const prices = results.map(r => r.price_avg || r.price_min).filter(Boolean);
+  document.getElementById('statCount').textContent = results.length;
+  document.getElementById('statMin').textContent = Math.min(...prices).toLocaleString('ar-EG');
+  document.getElementById('statMax').textContent = Math.max(...prices).toLocaleString('ar-EG');
+  document.getElementById('statsRow').style.display = 'grid';
+  document.getElementById('sortBar').style.display = 'flex';
+
+  grid.innerHTML = '';
+  sortData(results, currentSort).forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'tire-card';
+    card.style.animationDelay = `${i * .07}s`;
+    const cities = (item.cities || []).map(c => `<span class="city-tag">${c}</span>`).join('');
+    const feats  = (item.features || []).slice(0,3).map(f => `<span class="spec-chip">${f}</span>`).join('');
+    const price  = item.price_min === item.price_max
+      ? (item.price_avg||item.price_min).toLocaleString('ar-EG')
+      : `${item.price_min.toLocaleString('ar-EG')} – ${item.price_max.toLocaleString('ar-EG')}`;
+
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="brand-badge">${item.brand}</span>
+        ${item.is_bestseller ? '<span class="bestseller-badge">⭐ الأكثر مبيعاً</span>' : ''}
+      </div>
+      <div class="tire-name">${item.brand} ${item.model}</div>
+      <div class="tire-size">
+        <span class="dot">📐</span> ${item.size||'—'}
+        ${item.origin ? `<span class="dot">•</span>${item.origin}` : ''}
+        ${item.car_type ? `<span class="dot">•</span>${item.car_type}` : ''}
+      </div>
+      ${feats ? `<div class="specs-row">${feats}</div>` : ''}
+      <div class="price-row">
+        <div><div class="price-label">السعر التقريبي</div><div class="price-value"><small>ج</small>${price}</div></div>
+        <div class="city-tags">${cities}</div>
+      </div>
+      ${item.notes ? `<div style="margin-top:8px;font-size:.75rem;color:var(--muted)">💡 ${item.notes}</div>` : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function sortData(data, m) {
+  const d = [...data];
+  if (m==='popular')    return d.sort((a,b)=>(b.is_bestseller?1:0)-(a.is_bestseller?1:0));
+  if (m==='price-asc')  return d.sort((a,b)=>(a.price_min||0)-(b.price_min||0));
+  if (m==='price-desc') return d.sort((a,b)=>(b.price_max||0)-(a.price_max||0));
+  if (m==='brand')      return d.sort((a,b)=>a.brand.localeCompare(b.brand));
+  return d;
+}
+
+function sortResults(m) {
+  currentSort = m;
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sort-'+m).classList.add('active');
+  if (allResults.length) renderResults(allResults);
+}
+</script>
+</body>
+</html>
