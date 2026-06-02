@@ -5,77 +5,89 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.request
 import urllib.error
 
-# API Key comes from environment variable (set it in Railway dashboard)
-API_KEY = os.environ.get("GEMINI_API_KEY")
+# الـ Key بتتاخد من Railway Environment Variables
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+
+# Gemini API endpoint
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
 class Handler(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
-    def do_GET(self):
-        if self.path == "/health":
-            self._respond(200, {"status": "ok", "message": "Server is running"})
-        else:
-            self._respond(200, {"status": "ok"})
-
     def do_POST(self):
         if self.path == "/api/search":
+            # 1. اقرأ الـ request الجاي من المتصفح
             length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(length)
             data = json.loads(body)
 
-            query = data.get("query", "")
+            query   = data.get("query", "")
             filters = data.get("filters", {})
 
-            system_prompt = """أنت خبير في سوق الكاوتش في مصر. رد فقط بـ JSON array بدون أي نص زيادة.
+            # 2. جهز الـ prompt
+            prompt = f"""أنت خبير في سوق الكاوتش (الإطارات) في مصر.
+رد فقط بـ JSON array بدون أي نص زيادة أو backticks أو markdown.
+
 كل عنصر في الـ array يحتوي على:
-{
+{{
   "brand": "الماركة",
   "model": "الموديل",
   "size": "مثال: 205/55R16",
-  "price_min": رقم,
-  "price_max": رقم,
-  "price_avg": رقم,
-  "cities": ["القاهرة","الإسكندرية"],
+  "price_min": رقم بالجنيه,
+  "price_max": رقم بالجنيه,
+  "price_avg": رقم بالجنيه,
+  "cities": ["القاهرة", "الإسكندرية"],
   "is_bestseller": true أو false,
   "car_type": "نوع السيارة",
-  "features": ["ميزة1","ميزة2"],
+  "features": ["ميزة1", "ميزة2"],
   "origin": "بلد الصنع",
-  "notes": "ملاحظة"
-}
-أرجع 6 إلى 10 نتايج واقعية بأسعار السوق المصري 2024-2025."""
+  "notes": "ملاحظة مفيدة"
+}}
 
-            user_msg = f"ابحث عن: {query}\nفلاتر: {json.dumps(filters, ensure_ascii=False)}"
+ابحث عن: {query}
+فلاتر: {json.dumps(filters, ensure_ascii=False)}
 
+أرجع 6 إلى 10 نتايج واقعية بأسعار السوق المصري 2024-2025. JSON فقط بدون أي كلام تاني."""
+
+            # 3. كلم Gemini API
             payload = json.dumps({
-                "model": "claude-sonnet-4-20250514",
-                "max_tokens": 3000,
-                "system": system_prompt,
-                "messages": [{"role": "user", "content": user_msg}]
+                "contents": [{
+                    "parts": [{"text": prompt}]
+                }],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "maxOutputTokens": 3000
+                }
             }).encode()
 
+            url = f"{GEMINI_URL}?key={GEMINI_API_KEY}"
             req = urllib.request.Request(
-                "https://api.anthropic.com/v1/messages",
+                url,
                 data=payload,
-                headers={
-                    "Content-Type": "application/json",
-                    "x-api-key": API_KEY,
-                    "anthropic-version": "2023-06-01"
-                }
+                headers={"Content-Type": "application/json"}
             )
 
             try:
                 with urllib.request.urlopen(req) as resp:
                     result = json.loads(resp.read())
-                    text = result["content"][0]["text"]
+
+                    # استخرج النص من رد Gemini
+                    text = result["candidates"][0]["content"]["parts"][0]["text"]
+
+                    # نظف الـ JSON لو فيه backticks
+                    text = re.sub(r'```json|```', '', text).strip()
+
+                    # استخرج الـ array
                     match = re.search(r'\[[\s\S]*\]', text)
                     items = json.loads(match.group()) if match else []
 
+                    # فلتر السعر لو موجود
                     max_price = filters.get("maxPrice")
                     if max_price:
                         items = [i for i in items if i.get("price_min", 0) <= int(max_price)]
@@ -83,7 +95,8 @@ class Handler(BaseHTTPRequestHandler):
                     self._respond(200, {"results": items})
 
             except urllib.error.HTTPError as e:
-                self._respond(500, {"error": f"API Error: {e.code}"})
+                error_body = e.read().decode()
+                self._respond(500, {"error": f"Gemini API Error {e.code}: {error_body}"})
             except Exception as e:
                 self._respond(500, {"error": str(e)})
         else:
@@ -103,7 +116,11 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    # Railway gives us a PORT env variable — must use it
-    port = int(os.environ.get("PORT", 8000))
-    print(f"✅ Server running on port {port}")
-    HTTPServer(("0.0.0.0", port), Handler).serve_forever()
+    port = 8000
+    if not GEMINI_API_KEY:
+        print("⚠️  تحذير: GEMINI_API_KEY مش موجودة!")
+        print("   حطها في Railway Variables أو اكتبها في الكود مؤقتاً للتجربة")
+    print(f"✅ السيرفر شغال على http://localhost:{port}")
+    print(f"   افتح الملف index.html في المتصفح")
+    print(f"   اضغط Ctrl+C لتوقيف السيرفر\n")
+    HTTPServer(("localhost", port), Handler).serve_forever()
