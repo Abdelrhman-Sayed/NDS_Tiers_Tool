@@ -6,7 +6,7 @@ import urllib.request
 import urllib.error
 
 # API Key comes from environment variable (set it in Railway dashboard)
-API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+API_KEY = os.environ.get("GEMINI_API_KEY")
 
 class Handler(BaseHTTPRequestHandler):
 
